@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简易计算器</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --accent: #4c6ef5;
+      --border: rgba(76, 110, 245, 0.2);
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+
+    .calculator {
+      width: min(360px, 90vw);
+      padding: 2.5rem 2rem;
+      background: var(--card);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.75rem;
+      text-align: center;
+    }
+
+    .inputs {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    input,
+    select,
+    button {
+      font: inherit;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.9);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    button:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.25);
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      filter: brightness(1.05);
+    }
+
+    .result {
+      background: rgba(76, 110, 245, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(76, 110, 245, 0.3);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .error {
+      color: #d64045;
+      font-size: 0.9rem;
+      text-align: center;
+      min-height: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="calculator" aria-labelledby="calculator-title">
+    <h1 id="calculator-title">简易计算器</h1>
+    <form id="calculator-form" class="inputs" novalidate>
+      <label>
+        <span>第一个数字</span>
+        <input type="number" id="number-a" inputmode="decimal" aria-label="第一个数字" required />
+      </label>
+      <label>
+        <span>第二个数字</span>
+        <input type="number" id="number-b" inputmode="decimal" aria-label="第二个数字" required />
+      </label>
+      <label>
+        <span>运算符</span>
+        <select id="operator" aria-label="运算符">
+          <option value="add">加法（+）</option>
+          <option value="subtract">减法（-）</option>
+          <option value="multiply">乘法（×）</option>
+          <option value="divide">除法（÷）</option>
+        </select>
+      </label>
+      <button type="submit" id="calculate">计算结果</button>
+      <output id="result" class="result" role="status" aria-live="polite">结果将显示在这里</output>
+      <div id="error" class="error" role="alert"></div>
+    </form>
+  </main>
+
+  <script>
+    (function () {
+      const numberA = document.getElementById('number-a');
+      const numberB = document.getElementById('number-b');
+      const operator = document.getElementById('operator');
+      const result = document.getElementById('result');
+      const error = document.getElementById('error');
+      const form = document.getElementById('calculator-form');
+
+      function formatNumber(value) {
+        return Number.isFinite(value) ? Number(value.toFixed(8)).toString() : '无法计算';
+      }
+
+      function calculate() {
+        error.textContent = '';
+
+        const valueA = parseFloat(numberA.value);
+        const valueB = parseFloat(numberB.value);
+
+        if (Number.isNaN(valueA) || Number.isNaN(valueB)) {
+          result.textContent = '——';
+          error.textContent = '请输入两个有效的数字。';
+          return;
+        }
+
+        let computed;
+
+        switch (operator.value) {
+          case 'add':
+            computed = valueA + valueB;
+            break;
+          case 'subtract':
+            computed = valueA - valueB;
+            break;
+          case 'multiply':
+            computed = valueA * valueB;
+            break;
+          case 'divide':
+            if (valueB === 0) {
+              result.textContent = '——';
+              error.textContent = '除数不能为 0。';
+              return;
+            }
+            computed = valueA / valueB;
+            break;
+          default:
+            result.textContent = '——';
+            error.textContent = '未知的运算符。';
+            return;
+        }
+
+        result.textContent = formatNumber(computed);
+      }
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        calculate();
+      });
+
+      [numberA, numberB].forEach((element) => {
+        element.addEventListener('input', () => {
+          error.textContent = '';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
